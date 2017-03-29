@@ -120,7 +120,7 @@ While 1
 				GUICtrlSetData($msg,$folder)
 				$FilePath = $folder
 
-				 $fil  = _FileListToArrayRec($FilePath, "*",1,1,1,2)
+				 $fil  = _FileListToArrayRec($FilePath, "*.jpg;*.png",1,1,1,2)
 
 				For $d = 1 to UBound($fil )-1
 					If StringRegExp($fil[$d], "\.[^.]*?$", 1)[0] <> ".jpg" Then
@@ -138,7 +138,12 @@ While 1
 		Case $RebuildQ
 			If $FilePath <> "" Then
 				If FileExists($guetzli) Then
-					RebuildQ($FilePath)
+					$chkimg = _FileListToArrayRec($FilePath, "*.jpg;*.png",1,1,1,2)
+					If UBound($chkimg) <> 0 Then
+						RebuildQ($FilePath)
+					Else
+						GUICtrlSetData($msg,"The folder does not contain any img files")
+					EndIf
 				Else
 					GUICtrlSetData($msg,"Error guetzli.exe not found! Copy it and restart the app.")
 				EndIf
