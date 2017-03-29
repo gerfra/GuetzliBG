@@ -56,7 +56,7 @@ GUISetIcon($icon, -1)
 
 $Sel = GUICtrlCreateButton("Select Folder", 16, 50, 107, 25)
 $RebuildQ = GUICtrlCreateButton("Rebuild Quality", 133, 50, 107, 25)
-
+$prlog= GUICtrlCreateButton("Read Log", 16, 80, 107, 25)
 Local $idSlider1 = GUICtrlCreateSlider(250, 50, 200, 24)
 GUICtrlSetLimit(-1, 100, 0) ; change min/max value
 $hSlider_Handle = GUICtrlGetHandle(-1)
@@ -80,10 +80,10 @@ $Edit1 = GUICtrlCreateEdit("" & @CRLF, 16, 150,600,240, $ES_MULTILINE+$ES_AUTOVS
 GUICtrlSetData($Edit1, "")
 
 $StatusBar = _GUICtrlStatusBar_Create($Form1)
-Local $StatusBar_PartsWidth[2] = [530, 110]
+Local $StatusBar_PartsWidth[2] = [520, 120]
 _GUICtrlStatusBar_SetParts($StatusBar, $StatusBar_PartsWidth)
 _GUICtrlStatusBar_SetText($StatusBar, "Ready", 0)
-_GUICtrlStatusBar_SetText($StatusBar, "Francesco Gerrtana ", 1)
+_GUICtrlStatusBar_SetText($StatusBar, "Francesco Gerratana ", 1)
 
 GUISetState(@SW_SHOW)
 
@@ -99,8 +99,20 @@ While 1
 			Exit
 		Case $GUI_EVENT_PRIMARYUP
             ToolTip("")
+		Case $prlog
+			$inputString = GUICtrlRead($Edit1)
+			$string = StringSplit($inputString,'\n', $STR_ENTIRESPLIT)
+			$log = @ScriptDir&"\log.txt"
+			FileOpen($log,2)
+				For $i = 1 To $string[0]
+					FileWriteLine($log,$string[$i])
+				Next
+			FileClose($log)
+			If FileExists($log) Then
+				ShellExecute($log,"",@ScriptDir,"Open")
+			EndIf
 		Case $Sel
-			$folder = FileSelectFolder("Select the images folder","")
+			$folder = FileSelectFolder("Select the images folder",@ScriptDir)
 			If @error Then
 				GUICtrlSetData($msg,"Invalid path")
 				$FilePath = ""
