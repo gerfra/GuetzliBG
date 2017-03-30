@@ -2,6 +2,13 @@
 Guetzli batch gui, Windows frontend for the program  Guetzli Perceptual JPEG encoder https://github.com/google/guetzli, you can compress multiple images at once, read the guetzli output on the fly. 
 PS: To run you need to put guetzli.exe inside the GuetzliGB 
 
+FEATURES
+
+1. Batch mode, convert multiple files at once.
+2. Slider quality setting.
+3. Log console, Save log to a file.
+4. Show calculating total processing time. 
+
 USAGE
 
 1. Download guetzli_windows_x86-64.exe and rename it to guetzli.exe then copy it inside the GuetzliBG folder.
