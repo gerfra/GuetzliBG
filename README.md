@@ -9,3 +9,14 @@ USAGE
 3. Set the quality percentage from the slider.
 4. Press Rebuild Quality to start the procedure.
 5. Press Read Log to read the output log file generated inside GuetzliBG folder.
+
+Youtube Demostration
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=i2utOynCmBQ
+" target="_blank"><img src="http://img.youtube.com/vi/i2utOynCmBQ/0.jpg" 
+alt="Guetzli Gui Windows" width="240" height="180" border="10" /></a>
+
+
+Author website
+
+<a href="http://www.nextechnics.com" target="_blank">Nextechnics</a>
