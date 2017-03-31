@@ -8,8 +8,8 @@
 #pragma compile(UPX, False)
 #pragma compile(FileDescription, Guetzli Batch Gui)
 #pragma compile(ProductName, GuetzliBG)
-#pragma compile(ProductVersion, 1.0)
-#pragma compile(FileVersion, 1.0)
+#pragma compile(ProductVersion, 1.1)
+#pragma compile(FileVersion, 1.1)
 #pragma compile(LegalCopyright, © Francesco Gerratana)
 #pragma compile(CompanyName, 'Nextechnics')
 #pragma compile(Compression, 3)
@@ -43,7 +43,12 @@ Global $FilePath, $msg=""
 Global $tipo = "*.jpg;*.png"
 Global $trasp = 0x2C3459
 Global $guetzli = @ScriptDir&"\guetzli.exe"
-
+Global $ini = @ScriptDir&"\cfg.ini"
+		If Not FileExists($ini) Then
+			IniWrite($ini,"SETTINGS","quality","84")
+		EndIf
+Global $qini = IniRead($ini,"SETTINGS","quality","")
+Global $mpathl = @ScriptDir&"\mpath.txt"
 
 #Region ### START Koda GUI section ### Form=
 $Form1 = GUICreate("GuetzliBG | Guetzli Batch Gui | www.nextechnics.com", 640, 420, -1, -1)
@@ -56,14 +61,19 @@ GUISetIcon($icon, -1)
 
 $Sel = GUICtrlCreateButton("Select Folder", 16, 50, 107, 25)
 $RebuildQ = GUICtrlCreateButton("Rebuild Quality", 133, 50, 107, 25)
-$prlog= GUICtrlCreateButton("Read Log", 16, 80, 107, 25)
+$prlog= GUICtrlCreateButton("Read Log", 250, 80, 107, 25)
+
+$multi= GUICtrlCreateButton("Multiple Folder", 16, 80, 107, 25)
+$rmulti= GUICtrlCreateButton("Rebuild Quality M", 133, 80, 107, 25)
+
 Local $idSlider1 = GUICtrlCreateSlider(250, 50, 200, 24)
+GUICtrlSetData($idSlider1, $qini)
 GUICtrlSetLimit(-1, 100, 0) ; change min/max value
 $hSlider_Handle = GUICtrlGetHandle(-1)
 GUICtrlSetBkColor($idSlider1,0x2C3459)
 
 
-$Label5 = GUICtrlCreateLabel("Quality", 255, 30, 89, 17)
+$Label5 = GUICtrlCreateLabel("Quality "&$qini&"%", 255, 30, 89, 17)
 GUICtrlSetBkColor(-1,$trasp)
 $Label6 = GUICtrlCreateLabel("About Guetzli Batch Gui", 490, 10, 140, 17)
 GUICtrlSetFont(-1, 9, 400,4)
@@ -112,93 +122,124 @@ While 1
 				ShellExecute($log,"",@ScriptDir,"Open")
 			EndIf
 		Case $Sel
+		;	$folder = FileSelectFolder("Select the images folder",@ScriptDir)
+		;	If @error Then
+		;		GUICtrlSetData($msg,"Invalid path")
+		;		$FilePath = ""
+		;	Else
+		;		GUICtrlSetData($msg,$folder)
+		;		$FilePath = $folder
+		;	EndIf
 			$folder = FileSelectFolder("Select the images folder",@ScriptDir)
 			If @error Then
 				GUICtrlSetData($msg,"Invalid path")
 				$FilePath = ""
 			Else
-				GUICtrlSetData($msg,$folder)
-				$FilePath = $folder
-
-				 $fil  = _FileListToArrayRec($FilePath, "*.jpg;*.png",1,1,1,2)
-
-				For $d = 1 to UBound($fil )-1
-					If StringRegExp($fil[$d], "\.[^.]*?$", 1)[0] <> ".jpg" Then
-						  If StringRegExp($fil[$d], "\.[^.]*?$", 1)[0] <> ".png" Then
-							ConsoleWrite($fil[$d]&@CRLF)
-							FileDelete($fil[$d])
-						  EndIf
-					Else
-						  ConsoleWrite($fil[$d]&@CRLF)
-					EndIf
-				Next
-
+				GUICtrlSetData($Edit1,$folder&@CRLF,1)
+				FileWriteLine($mpathl,$folder)
 			EndIf
-
 		Case $RebuildQ
-			If $FilePath <> "" Then
-				If FileExists($guetzli) Then
-					$chkimg = _FileListToArrayRec($FilePath, "*.jpg;*.png",1,1,1,2)
-					If UBound($chkimg) <> 0 Then
-						RebuildQ($FilePath)
-					Else
-						GUICtrlSetData($msg,"The folder does not contain any img files")
-					EndIf
+
+				If FileExists($mpathl) Then
+				$flipath = FileReadToArray($mpathl)
+				$t = UBound($flipath)-1
+				If $t = -1 Then
+					GUICtrlSetData($msg,"Error!!! File mpath is empty")
+				ElseIf $t = 0 Then
+					RebuildQ($flipath[0])
 				Else
-					GUICtrlSetData($msg,"Error guetzli.exe not found! Copy it and restart the app.")
+					_multipath($flipath)
 				EndIf
-			Else
-				GUICtrlSetData($msg,"Please select images folder")
 			EndIf
+
+
+		;	If $FilePath <> "" Then
+		;		If FileExists($guetzli) Then
+		;			$chkimg = _FileListToArrayRec($FilePath, "*.jpg;*.png",1,1,1,2)
+		;			If UBound($chkimg) <> 0 Then
+		;				RebuildQ($FilePath)
+		;			Else
+		;				GUICtrlSetData($msg,"The folder does not contain any img files")
+		;			EndIf
+		;		Else
+		;			GUICtrlSetData($msg,"Error guetzli.exe not found! Copy it and restart the app.")
+		;		EndIf
+		;	Else
+		;		GUICtrlSetData($msg,"Please select images folder")
+		;	EndIf
 
 		Case $Label6
 			ShellExecute("http://www.nextechnics.com")
+
 	EndSwitch
 WEnd
+
+Func _multipath($mfile)
+		$t = UBound($mfile)-1
+		For $s = 1 to $t
+			RebuildQ($mfile[$s])
+			ConsoleWrite($mfile[$s]&@CRLF)
+		Next
+EndFunc
+
+
 
 ; Reduce quality
 Func RebuildQ($FilePath)
 GUICtrlSetData($Edit1,'')
-GUICtrlSetData($msg3,'Wait reduction image quality process...')
-$files = _FileListToArrayRec($FilePath,$tipo,1,1,1,1)
-$count = 0
 
+$files = _FileListToArrayRec($FilePath,$tipo,1,1,1,2)
 
-Local $hTimer = TimerInit()
+If UBound($files)-1 <> -1 Then
+	GUICtrlSetData($msg3,'Wait reduction image quality process...')
+	_ArrayDisplay($files)
+	$count = 0
 
-	For $q = 1 to UBound($files)-1
-		$run = Run($guetzli &" --quality "&GUICtrlRead($idSlider1)&" --verbose "&'"'&$FilePath&"\"&$files[$q]&'"'&" "&'"'&$FilePath&"\"&"COPY_"&$files[$q]&'"',@ScriptDir,@SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD )
-		ConsoleWrite($guetzli &" --quality "&GUICtrlRead($idSlider1)&" --verbose "&'"'&$FilePath&"\"&$files[$q]&'"'&" "&'"'&$FilePath&"\"&"COPY_"&$files[$q]&'"'&@CRLF)
-		$count+=1
-		GUICtrlSetData($Edit1,$files[$q]&@CRLF,1)
-		StdinWrite($run)
+	Local $hTimer = TimerInit()
 
-		Local $sOutput = ""
+		Local $sDrive = "", $sDir = "", $sFileName = "", $sExtension = "", $copy = "Copy\"
 
-		While 1
-			$sOutput &= StdoutRead($run)
+		For $q = 1 to UBound($files)-1
+			$Ps = _PathSplit($files[$q], $sDrive, $sDir, $sFileName, $sExtension)
+			If Not FileExists($Ps[1]&$Ps[2]&$copy) Then DirCreate($Ps[1]&$Ps[2]&$copy)
+				$run = Run($guetzli &" --quality "&$qini&" --verbose "&'"'&$files[$q]&'"'&" "&'"'&$Ps[1]&$Ps[2]&$copy&$Ps[3]&$Ps[4]&'"',@ScriptDir,@SW_HIDE, $STDERR_CHILD + $STDOUT_CHILD)
+			ConsoleWrite($guetzli &" --quality "&$qini&" --verbose "&'"'&$files[$q]&'"'&" "&'"'&$Ps[1]&$Ps[2]&$copy&$Ps[3]&$Ps[4]&'"'&@CRLF)
+			$count+=1
+			GUICtrlSetData($Edit1,$files[$q]&@CRLF,1)
+			StdinWrite($run)
+
+			Local $sOutput = ""
+
+			While 1
+				$sOutput &= StdoutRead($run)
+				If @error Then
+					ExitLoop
+				EndIf
+				Local $Diff = TimerDiff($hTimer)
+				Local $Tc = _Time($Diff)
+				GUICtrlSetData($msg,$Tc[0] & " Hours " & $Tc[1] & " Minutes " & $Tc[2] & " Seconds")
+			WEnd
+			If $sOutput <> "" Then
+				GUICtrlSetData($Edit1,$sOutput&@CRLF,1)
+			EndIf
+			While 1
+			$sOutput = StderrRead($run)
 			If @error Then
 				ExitLoop
 			EndIf
-			Local $Diff = TimerDiff($hTimer)
-			Local $Tc = _Time($Diff)
-			GUICtrlSetData($msg,$Tc[0] & " Hours " & $Tc[1] & " Minutes " & $Tc[2] & " Seconds")
-		WEnd
-		If $sOutput <> "" Then
-			GUICtrlSetData($Edit1,$sOutput&@CRLF,1)
-		EndIf
-		While 1
-        $sOutput = StderrRead($run)
-        If @error Then
-            ExitLoop
-        EndIf
-		If $sOutput <> "" Then
-			GUICtrlSetData($Edit1,$sOutput&@CRLF,1)
-		EndIf
-		WEnd
-	Next
-	ProcessWaitClose($run)
-	GUICtrlSetData($msg3,"Finish reduction image quality process. Tot:"&$count)
+			If $sOutput <> "" Then
+				GUICtrlSetData($Edit1,$sOutput&@CRLF,1)
+			EndIf
+			WEnd
+		Next
+		ProcessWaitClose($run)
+		GUICtrlSetData($msg3,"Finish reduction image quality process. Tot:"&$count)
+
+	Else
+
+		GUICtrlSetData($msg,"The folder does not contain any img files")
+
+	EndIf
 EndFunc
 
 ; React to slider movement
@@ -208,6 +249,7 @@ Func WM_H_Slider($hWnd, $iMsg, $wParam, $lParam)
 		$iValue = GUICtrlRead($idSlider1)
         ToolTip($iValue&"%")
 			GUICtrlSetData($Label5,"Quality: "&$iValue&"%")
+			IniWrite($ini,"SETTINGS","quality",$iValue)
     EndIf
     Return $GUI_RUNDEFMSG
 
