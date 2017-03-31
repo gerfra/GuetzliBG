@@ -61,7 +61,7 @@ GUISetIcon($icon, -1)
 
 $Sel = GUICtrlCreateButton("Select Folder", 16, 50, 107, 25)
 $RebuildQ = GUICtrlCreateButton("Rebuild Quality", 133, 50, 107, 25)
-$prlog= GUICtrlCreateButton("Read Log", 250, 80, 107, 25)
+$prlog= GUICtrlCreateButton("Read Log", 16, 80, 107, 25)
 
 Local $idSlider1 = GUICtrlCreateSlider(250, 50, 200, 24)
 GUICtrlSetData($idSlider1, $qini)
