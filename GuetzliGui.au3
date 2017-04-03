@@ -33,8 +33,8 @@ DirCreate(@ScriptDir & "\res")
 
 Local $bFileInstall = True
 If $bFileInstall Then
-	FileInstall("E:\DEVREPO\GuetzliBG\res\GuetzliBG.bmp", @ScriptDir & "\res\GuetzliBG.bmp")
-	FileInstall("E:\DEVREPO\GuetzliBG\res\GuetzliBG.ico", @ScriptDir & "\res\GuetzliBG.ico")
+	FileInstall("C:\Users\root\Desktop\GuetzliBG\res\GuetzliBG.bmp", @ScriptDir & "\res\GuetzliBG.bmp")
+	FileInstall("C:\Users\root\Desktop\GuetzliBG\res\GuetzliBG.ico", @ScriptDir & "\res\GuetzliBG.ico")
 EndIf
 
 Global $icon = @ScriptDir&"\res\GuetzliBG.ico"
@@ -51,7 +51,7 @@ Global $qini = IniRead($ini,"SETTINGS","quality","")
 Global $mpathl = @ScriptDir&"\mpath.txt"
 
 #Region ### START Koda GUI section ### Form=
-$Form1 = GUICreate("GuetzliBG | Guetzli Batch Gui | www.nextechnics.com", 640, 420, -1, -1)
+$Form1 = GUICreate("GuetzliBG Lite Version | Guetzli Batch Gui | www.nextechnics.com", 640, 420, -1, -1)
 $Pic1 = GUICtrlCreatePic($pic, 505, 30, 100, 101)
 GUISetBkColor(0x2C3459)
 GUICtrlSetDefColor(0xFFFFFF)
@@ -118,52 +118,34 @@ While 1
 			If FileExists($log) Then
 				ShellExecute($log,"",@ScriptDir,"Open")
 			EndIf
+
 		Case $Sel
-		;	$folder = FileSelectFolder("Select the images folder",@ScriptDir)
-		;	If @error Then
-		;		GUICtrlSetData($msg,"Invalid path")
-		;		$FilePath = ""
-		;	Else
-		;		GUICtrlSetData($msg,$folder)
-		;		$FilePath = $folder
-		;	EndIf
 			$folder = FileSelectFolder("Select the images folder",@ScriptDir)
 			If @error Then
 				GUICtrlSetData($msg,"Invalid path")
 				$FilePath = ""
 			Else
-				GUICtrlSetData($Edit1,$folder&@CRLF,1)
-				FileWriteLine($mpathl,$folder)
+				GUICtrlSetData($msg,$folder)
+				$FilePath = $folder
 			EndIf
+
+
 		Case $RebuildQ
 
-				If FileExists($mpathl) Then
-				$flipath = FileReadToArray($mpathl)
-				$t = UBound($flipath)-1
-				If $t = -1 Then
-					GUICtrlSetData($msg,"Error!!! File mpath is empty")
-				ElseIf $t = 0 Then
-					RebuildQ($flipath[0])
+			If $FilePath <> "" Then
+				If FileExists($guetzli) Then
+					$chkimg = _FileListToArrayRec($FilePath, $tipo &" || Copy" ,1,1,1,2)
+					If UBound($chkimg) <> 0 Then
+						RebuildQ($FilePath)
+					Else
+						GUICtrlSetData($msg,"The folder does not contain any img files")
+					EndIf
 				Else
-					_multipath($flipath)
+					GUICtrlSetData($msg,"Error guetzli.exe not found! Copy it and restart the app.")
 				EndIf
+			Else
+				GUICtrlSetData($msg,"Please select images folder")
 			EndIf
-
-
-		;	If $FilePath <> "" Then
-		;		If FileExists($guetzli) Then
-		;			$chkimg = _FileListToArrayRec($FilePath, "*.jpg;*.png",1,1,1,2)
-		;			If UBound($chkimg) <> 0 Then
-		;				RebuildQ($FilePath)
-		;			Else
-		;				GUICtrlSetData($msg,"The folder does not contain any img files")
-		;			EndIf
-		;		Else
-		;			GUICtrlSetData($msg,"Error guetzli.exe not found! Copy it and restart the app.")
-		;		EndIf
-		;	Else
-		;		GUICtrlSetData($msg,"Please select images folder")
-		;	EndIf
 
 		Case $Label6
 			ShellExecute("http://www.nextechnics.com")
@@ -171,21 +153,11 @@ While 1
 	EndSwitch
 WEnd
 
-Func _multipath($mfile)
-		$t = UBound($mfile)-1
-		For $s = 1 to $t
-			RebuildQ($mfile[$s])
-			ConsoleWrite($mfile[$s]&@CRLF)
-		Next
-EndFunc
-
-
-
 ; Reduce quality
 Func RebuildQ($FilePath)
 GUICtrlSetData($Edit1,'')
 
-$files = _FileListToArrayRec($FilePath,$tipo,1,1,1,2)
+$files = _FileListToArrayRec($FilePath,$tipo &" || Copy",1,1,1,2)
 
 If UBound($files)-1 <> -1 Then
 	GUICtrlSetData($msg3,'Wait reduction image quality process...')
