@@ -30,16 +30,13 @@ USAGE
 4. Press Rebuild Quality to start the procedure.
 5. Press Read Log to read the output log file generated inside GuetzliBG folder.
 
-Youtube Demostration PRO Version
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=Iqa677nFa10
-" target="_blank"><img src="http://img.youtube.com/vi/Iqa677nFa10/0.jpg" 
-alt="Guetzli Gui Windows" width="240" height="180" border="10" /></a>
+<h1>Youtube Demostration PRO Version</h1>
 
-Youtube Demostration Lite Version
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=Iqa677nFa10" target="_blank"><img src="http://img.youtube.com/vi/Iqa677nFa10/0.jpg" alt="Guetzli Gui Windows" width="240" height="180" border="10" /></a>
 
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=i2utOynCmBQ
-" target="_blank"><img src="http://img.youtube.com/vi/i2utOynCmBQ/0.jpg" 
-alt="Guetzli Gui Windows" width="240" height="180" border="10" /></a>
+<h1>Youtube Demostration Lite Version</h1>
+
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=i2utOynCmBQ" target="_blank"><img src="http://img.youtube.com/vi/i2utOynCmBQ/0.jpg" alt="Guetzli Gui Windows" width="240" height="180" border="10" /></a>
 
 
 Author website
